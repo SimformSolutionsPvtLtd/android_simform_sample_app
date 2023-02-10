@@ -19,9 +19,9 @@ package com.simformsolutions.sample.app.utils
  * API URLs collection.
  */
 object Urls {
-    private const val BASE_DEV = "https://randomuser.me/api/"
-    private const val BASE_QA = ""
-    private const val BASE_PRODUCTION = ""
+    private const val BASE_DEV = "https://api.github.com/graphql"
+    private const val BASE_QA = "https://api.github.com/graphql"
+    private const val BASE_PRODUCTION = "https://api.github.com/graphql"
 
     /**
      * Get Base URL for [flavor].

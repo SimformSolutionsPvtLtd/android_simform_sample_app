@@ -6,6 +6,12 @@ object BuildConfigFields {
         "\"APPCENTER_KEY\""
     )
 
+    val GITHUB_TOKEN = Field(
+        Type.STRING,
+        "GITHUB_TOKEN",
+        ""
+    )
+
     private object Type {
         const val STRING = "String"
     }

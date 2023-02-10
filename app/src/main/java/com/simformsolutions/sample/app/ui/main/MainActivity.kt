@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.simformsolutions.sample.app.ui.splash
+package com.simformsolutions.sample.app.ui.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -21,14 +21,22 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.apollographql.apollo3.ApolloClient
 import com.simformsolutions.sample.app.ui.theme.SampleTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject lateinit var apolloClient: ApolloClient
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -41,9 +49,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun SampleApp() {
+fun SampleApp(
+    viewModel: MainViewModel = viewModel()
+) {
+    val name by viewModel.userMessage.collectAsState(initial = "")
     Text(
-        text = "Hello World!",
+        text = "Hello $name",
         modifier = Modifier.fillMaxSize(),
         textAlign = TextAlign.Center,
     )

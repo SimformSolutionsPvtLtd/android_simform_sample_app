@@ -81,4 +81,7 @@ object Libs {
 
     // GLIDE
     const val GLIDE = "com.github.bumptech.glide:glide:${Versions.GLIDE}"
+
+    // Apollo GraphQL
+    const val APOLLO_GRAPH_QL = "com.apollographql.apollo3:apollo-runtime:${Versions.APOLLO_GRAPH_QL}"
 }

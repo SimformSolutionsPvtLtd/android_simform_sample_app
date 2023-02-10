@@ -1,8 +1,11 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     id(Plugins.ANDROID_APPLICATION)
     kotlin(Plugins.Kotlin.ANDROID)
     kotlin(Plugins.Kotlin.KAPT)
     id(Plugins.HILT)
+    id(Plugins.APOLLO_GRAPH_QL).version(Versions.APOLLO_GRAPH_QL)
 }
 
 apply {
@@ -53,6 +56,9 @@ android {
         buildTypes.forEach { type ->
             val appCenter = BuildConfigFields.APPCENTER_SECRET
             type.buildConfigField(appCenter.type, appCenter.title, appCenter.value)
+            val githubField = BuildConfigFields.GITHUB_TOKEN
+            val githubToken = gradleLocalProperties(rootDir).getProperty(githubField.title)
+            type.buildConfigField(githubField.type, githubField.title, githubToken)
         }
     }
 
@@ -162,6 +168,9 @@ dependencies {
     // Glide
     implementation(Libs.GLIDE)
 
+    // Apollo GraphQL
+    implementation(Libs.APOLLO_GRAPH_QL)
+
     // Unit testing
     testImplementation(Libs.JUNIT)
     testImplementation(Libs.JUNIT_EXT)
@@ -179,4 +188,11 @@ dependencies {
     androidTestImplementation(Libs.ESPRESSO_CONTRIB)
     androidTestImplementation(Libs.COMPOSE_UI_TEST_JUNIT_4)
     debugImplementation(Libs.COMPOSE_UI_TEST_MANIFEST)
+}
+
+apollo {
+    generateKotlinModels.set(true)
+    service("service") {
+        packageName.set(App.ID)
+    }
 }
