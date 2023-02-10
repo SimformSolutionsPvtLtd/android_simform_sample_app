@@ -16,6 +16,7 @@
 package com.simformsolutions.sample.app.di
 
 import android.content.Context
+import com.apollographql.apollo3.ApolloClient
 import com.simformsolutions.sample.app.BuildConfig
 import com.simformsolutions.sample.app.data.remote.ApiService
 import com.simformsolutions.sample.app.data.remote.apiresult.ApiResultCallAdapterFactory
@@ -85,4 +86,13 @@ object ApiModule {
         .addCallAdapterFactory(apiResultCallAdapterFactory)
         .build()
         .create(ApiService::class.java)
+
+    @Provides
+    fun provideApolloClient(
+        flavorPreferences: FlavorPreferences,
+    ): ApolloClient = ApolloClient.Builder()
+        .serverUrl(Urls.getBaseUrl(flavorPreferences.flavor))
+        .addHttpHeader("Authorization", "bearer ${BuildConfig.GITHUB_TOKEN}")
+        .addHttpHeader("Accept", "application/vnd.github.v4.idl")
+        .build()
 }

@@ -11,6 +11,7 @@ object Versions {
     const val ANDROID_GRADLE = "7.2.2"
     const val ARCH_CORE_TESTING = "2.1.0"
     const val ALERTER = "7.2.4"
+    const val APOLLO_GRAPH_QL = "3.7.4"
     const val CORE_KTX = "1.9.0"
     const val COMPOSE_MATERIAL_3 = "material3"
     const val COMPOSE_UI_TOOLING = "ui-tooling"
