@@ -1,0 +1,33 @@
+query Repositories($login: String!, $after: String, $before: String, $first: Int, $languagesFirst: Int, $orderBy: RepositoryOrder) {
+    organization(login: $login) {
+        repositories(after: $after, before: $before, first: $first, orderBy: $orderBy) {
+            totalCount
+            nodes {
+                description
+                descriptionHTML
+                forkCount
+                id
+                name
+                stargazerCount
+                isPrivate
+                licenseInfo {
+                    name
+                }
+                languages(first: $languagesFirst) {
+                    nodes {
+                        color
+                        id
+                        name
+                    }
+                    totalCount
+                }
+            }
+            pageInfo {
+                startCursor
+                hasPreviousPage
+                hasNextPage
+                endCursor
+            }
+        }
+    }
+}
