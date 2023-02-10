@@ -1,3 +1,19 @@
+/*
+ *  Copyright 2023 Simform
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 object Libs {
     // UI
     const val CONSTRAINT_LAYOUT = "androidx.constraintlayout:constraintlayout:${Versions.CONSTRAINT_LAYOUT}"
@@ -12,6 +28,7 @@ object Libs {
     const val RUNTIME_LIVEDATA_COMPOSE = "androidx.compose.runtime:${Versions.RUNTIME_LIVE_DATA}"
     const val COMPOSE_UI_TEST_JUNIT_4 = "androidx.compose.ui:${Versions.COMPOSE_UI_TEST_JUNIT_4}"
     const val COMPOSE_UI_TEST_MANIFEST = "androidx.compose.ui:${Versions.COMPOSE_UI_TEST_MANIFEST}"
+    const val COMPOSE_PAGINATION = "androidx.paging:paging-compose:${Versions.COMPOSE_PAGINATION}"
 
     // Jetpack
     const val CORE_KTX = "androidx.core:core-ktx:${Versions.CORE_KTX}"
@@ -28,6 +45,7 @@ object Libs {
     const val HILT = "com.google.dagger:hilt-android:${Versions.HILT}"
     const val HILT_DAGGER_COMPILER = "com.google.dagger:hilt-android-compiler:${Versions.HILT}"
     const val HILT_COMPILER = "androidx.hilt:hilt-compiler:${Versions.HILT_JETPACK}"
+    const val PAGINATION = "androidx.paging:paging-runtime:${Versions.PAGINATION}"
 
     // Testing
     const val ARCH_CORE_TESTING = "androidx.arch.core:core-testing:${Versions.ARCH_CORE_TESTING}"

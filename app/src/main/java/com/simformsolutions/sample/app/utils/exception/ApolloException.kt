@@ -13,21 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.simformsolutions.sample.app.utils.extension
 
-import android.content.Context
-import android.net.Uri
-import android.provider.OpenableColumns
+package com.simformsolutions.sample.app.utils.exception
+
+import com.apollographql.apollo3.api.Error
 
 /**
- * Get file name of the file [Uri]
- * @param uri of the file
- * @return file name
+ * Apollo errors exception
+ *
+ * @param errors The list of errors
  */
-fun Context.getFileName(uri: Uri): String? =
-    contentResolver.query(uri, null, null, null, null)
-        ?.use {
-            val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            it.moveToNext()
-            it.getString(nameIndex)
-        }
+class ApolloException(
+    val errors: List<Error>?
+) : Exception()

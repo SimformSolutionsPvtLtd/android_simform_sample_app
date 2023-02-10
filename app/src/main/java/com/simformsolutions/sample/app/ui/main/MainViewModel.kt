@@ -1,12 +1,32 @@
+/*
+ * Copyright 2023 Simform
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.simformsolutions.sample.app.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.apollographql.apollo3.ApolloClient
-import com.simformsolutions.sample.app.UserInfoQuery
-import com.simformsolutions.sample.app.di.IoDispatcher
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import com.bumptech.glide.Glide.init
+import com.simformsolutions.sample.app.RepositoriesQuery
+import com.simformsolutions.sample.app.data.repository.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
@@ -19,21 +39,23 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val apolloClient: ApolloClient,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    private val mainRepository: MainRepository
 ) : ViewModel() {
 
-    private val _userMessage = MutableStateFlow("")
-    val userMessage = _userMessage.asStateFlow()
+    private val _repositories = MutableStateFlow<List<RepositoriesQuery.Node>>(emptyList())
+    val repositories = _repositories.asStateFlow()
 
     init {
-        viewModelScope.launch(ioDispatcher) {
-            apolloClient.query(UserInfoQuery()).toFlow()
+        viewModelScope.launch {
+            mainRepository.getSimformRepositories()
+                .toFlow()
                 .catch {
                     Timber.e(TAG, it.stackTrace)
-                }.collect {
-                    it.data?.viewer?.name?.let { name ->
-                        _userMessage.tryEmit(name)
+                }.collect { response ->
+                    if (!response.hasErrors()) {
+                        response.data?.organization?.repositories?.nodes?.filterNotNull()?.let {
+                            _repositories.emit(it)
+                        }
                     }
                 }
         }

@@ -1,3 +1,19 @@
+/*
+ *  Copyright 2023 Simform
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 object Versions {
     const val BUILD_TOOLS = "33.0.0"
     const val COMPILE_SDK = 33
@@ -20,6 +36,7 @@ object Versions {
     const val COMPOSE_UI_TEST_MANIFEST = "ui-test-manifest"
     const val CONSTRAINT_LAYOUT = "2.1.4"
     const val COROUTINES = "1.6.4"
+    const val COMPOSE_PAGINATION = "1.0.0-alpha18"
     const val ESPRESSO_CORE = "3.4.0"
     const val FRAGMENT_KTX = "1.5.2"
     const val GSON = "2.9.1"
@@ -38,6 +55,7 @@ object Versions {
     const val MOCKITO_KOTLIN = "2.2.0"
     const val NAVIGATION = "2.5.2"
     const val OKHTTP3 = "4.10.0"
+    const val PAGINATION = "3.1.1"
     const val RECYCLER_VIEW = "1.2.1"
     const val ROOM = "2.4.3"
     const val RETROFIT = "2.9.0"
