@@ -16,4 +16,5 @@
 
 <resources>
     <string name="app_name">Simform Sample App</string>
+    <string name="last_updated_at">Last updated at %1$s</string>
 </resources>
