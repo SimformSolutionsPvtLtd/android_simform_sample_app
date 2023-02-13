@@ -10,17 +10,24 @@ query Repositories($login: String!, $after: String, $before: String, $first: Int
                 name
                 stargazerCount
                 isPrivate
+                updatedAt
                 licenseInfo {
-                    name
+                  name
                 }
                 languages(first: $languagesFirst) {
-                    nodes {
-                        color
-                        id
-                        name
+                  totalSize
+                  edges {
+                    node {
+                      color
+                      id
+                      name
                     }
-                    totalCount
+                    size
+                    cursor
+                  }
                 }
+                updatedAt
+                url
             }
             pageInfo {
                 startCursor

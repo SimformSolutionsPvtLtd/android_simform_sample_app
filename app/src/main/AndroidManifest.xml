@@ -33,7 +33,6 @@
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="true"
-            android:noHistory="true"
             android:theme="@style/AppTheme.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

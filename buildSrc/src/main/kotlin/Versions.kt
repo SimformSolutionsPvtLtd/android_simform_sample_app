@@ -24,7 +24,7 @@ object Versions {
     const val APPCENTER = "4.1.0"
     const val ACTIVITY_KTX = "1.5.1"
     const val ACTIVITY_COMPOSE = "1.5.1"
-    const val ANDROID_GRADLE = "7.2.2"
+    const val ANDROID_GRADLE = "7.4.1"
     const val ARCH_CORE_TESTING = "2.1.0"
     const val ALERTER = "7.2.4"
     const val APOLLO_GRAPH_QL = "3.7.4"

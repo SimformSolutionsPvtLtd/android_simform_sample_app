@@ -17,8 +17,6 @@
 package com.simformsolutions.sample.app.data.repository
 
 import com.simformsolutions.sample.app.data.remote.paging.SimformRepositoriesSource
-import com.simformsolutions.sample.app.di.IoDispatcher
-import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Inject
 
 /**
@@ -39,9 +37,8 @@ interface MainRepository {
  * @param simformRepositoriesSource The instance of [SimformRepositoriesSource]
  */
 class MainRepositoryImpl @Inject constructor(
-    private val simformRepositoriesSource: SimformRepositoriesSource,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
-): MainRepository {
+    private val simformRepositoriesSource: SimformRepositoriesSource
+) : MainRepository {
 
     override fun getSimformRepositoriesSource(): SimformRepositoriesSource =
         simformRepositoriesSource
