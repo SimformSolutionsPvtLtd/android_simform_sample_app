@@ -37,6 +37,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import com.simformsolutions.sample.app.R
 import com.simformsolutions.sample.app.RepositoriesQuery
 import kotlinx.coroutines.flow.Flow
@@ -44,10 +47,10 @@ import java.util.*
 
 @Composable
 fun Repositories(
-    repositoryData: Flow<List<RepositoriesQuery.Node>>
+    repositoryData: Flow<PagingData<RepositoriesQuery.Node>>
 ) {
     val context = LocalContext.current
-    val repositories by repositoryData.collectAsState(initial = emptyList())
+    val repositories = repositoryData.collectAsLazyPagingItems()
     Box(
         contentAlignment = Alignment.TopStart,
         modifier = Modifier
@@ -55,6 +58,7 @@ fun Repositories(
     ) {
         LazyColumn {
             items(repositories) {
+                it ?: return@items
                 Column(
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                     modifier = Modifier

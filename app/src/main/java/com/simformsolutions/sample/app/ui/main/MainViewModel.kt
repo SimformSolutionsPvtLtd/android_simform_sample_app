@@ -24,6 +24,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.bumptech.glide.Glide.init
 import com.simformsolutions.sample.app.RepositoriesQuery
+import com.simformsolutions.sample.app.data.remote.paging.SimformRepositoriesSource
 import com.simformsolutions.sample.app.data.repository.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -42,24 +43,11 @@ class MainViewModel @Inject constructor(
     private val mainRepository: MainRepository
 ) : ViewModel() {
 
-    private val _repositories = MutableStateFlow<List<RepositoriesQuery.Node>>(emptyList())
-    val repositories = _repositories.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            mainRepository.getSimformRepositories()
-                .toFlow()
-                .catch {
-                    Timber.e(TAG, it.stackTrace)
-                }.collect { response ->
-                    if (!response.hasErrors()) {
-                        response.data?.organization?.repositories?.nodes?.filterNotNull()?.let {
-                            _repositories.emit(it)
-                        }
-                    }
-                }
-        }
-    }
+    val repositories = Pager(
+        PagingConfig(pageSize = SimformRepositoriesSource.PAGE_LENGTH)
+    ) {
+        mainRepository.getSimformRepositoriesSource()
+    }.flow.cachedIn(viewModelScope)
 
     companion object {
         private val TAG = MainViewModel::class.java.canonicalName
