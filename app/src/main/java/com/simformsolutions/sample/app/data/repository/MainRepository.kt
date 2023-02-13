@@ -16,16 +16,9 @@
 
 package com.simformsolutions.sample.app.data.repository
 
-import com.apollographql.apollo3.ApolloCall
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.Optional
-import com.simformsolutions.sample.app.RepositoriesQuery
+import com.simformsolutions.sample.app.data.remote.paging.SimformRepositoriesSource
 import com.simformsolutions.sample.app.di.IoDispatcher
-import com.simformsolutions.sample.app.type.OrderDirection
-import com.simformsolutions.sample.app.type.RepositoryOrder
-import com.simformsolutions.sample.app.type.RepositoryOrderField
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -33,43 +26,23 @@ import javax.inject.Inject
  */
 interface MainRepository {
     /**
-     * Get all the repositories of Simform organisation
+     * Get the instance of [SimformRepositoriesSource]
      *
-     * @return [ApolloCall] containing [RepositoriesQuery.Data]
+     * @return The instance of [SimformRepositoriesSource]
      */
-    suspend fun getSimformRepositories(): ApolloCall<RepositoriesQuery.Data>
+    fun getSimformRepositoriesSource(): SimformRepositoriesSource
 }
 
 /**
  * Implementation of [MainRepository]
  *
- * @param apolloClient  The instance of [ApolloClient]
+ * @param simformRepositoriesSource The instance of [SimformRepositoriesSource]
  */
 class MainRepositoryImpl @Inject constructor(
-    private val apolloClient: ApolloClient,
+    private val simformRepositoriesSource: SimformRepositoriesSource,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ): MainRepository {
 
-    override suspend fun getSimformRepositories(): ApolloCall<RepositoriesQuery.Data> =
-        withContext(ioDispatcher) {
-            apolloClient.query(
-                RepositoriesQuery(
-                    login = SIMFORM_ORG,
-                    first = Optional.present(PAGE_LENGTH),
-                    languagesFirst = Optional.present(PAGE_LENGTH_LANGUAGES),
-                    orderBy = Optional.present(
-                        RepositoryOrder(
-                            field = RepositoryOrderField.STARGAZERS,
-                            direction = OrderDirection.DESC
-                        )
-                    )
-                )
-            )
-        }
-
-    companion object {
-        private const val SIMFORM_ORG = "SimformSolutionsPvtLtd"
-        private const val PAGE_LENGTH = 100
-        private const val PAGE_LENGTH_LANGUAGES = 1
-    }
+    override fun getSimformRepositoriesSource(): SimformRepositoriesSource =
+        simformRepositoriesSource
 }
