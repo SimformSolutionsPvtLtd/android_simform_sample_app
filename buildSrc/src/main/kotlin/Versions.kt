@@ -17,7 +17,7 @@
 object Versions {
     const val BUILD_TOOLS = "33.0.0"
     const val COMPILE_SDK = 33
-    const val MIN_SDK = 21
+    const val MIN_SDK = 24
     const val TARGET_SDK = 33
 
     const val APPCOMPAT = "1.5.1"
