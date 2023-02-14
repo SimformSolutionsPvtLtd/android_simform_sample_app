@@ -23,12 +23,6 @@
 
 * MVVM
 
-## 🎬 Preview
-
-| GIF 1 | GIF 2 | GIF 3 |
-|--|--|--|
-| <a href="gifs/default.gif">![](gifs/default.gif)</a> | <a href="gifs/default.gif">![](gifs/default.gif)</a> | <a href="gifs/default.gif">![](gifs/default.gif)</a> |
-
 ## Building the sample
 
 First, clone the repo:
