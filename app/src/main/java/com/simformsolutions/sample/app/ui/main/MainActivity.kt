@@ -15,14 +15,21 @@
  */
 package com.simformsolutions.sample.app.ui.main
 
+import android.os.Build
 import android.os.Bundle
+import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.apollographql.apollo3.ApolloClient
 import com.simformsolutions.sample.app.ui.theme.SampleTheme
+import com.simformsolutions.sample.app.ui.theme.sampleDarkColorScheme
+import com.simformsolutions.sample.app.ui.theme.sampleLightColorScheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -37,8 +44,28 @@ class MainActivity : ComponentActivity() {
         setContent {
             SampleTheme {
                 SampleApp()
+                checkAndUpdateStatusBarState(isSystemInDarkTheme())
             }
         }
+    }
+
+    private fun checkAndUpdateStatusBarState(isDarkModeEnabled: Boolean) = with(window) {
+        statusBarColor = if (isDarkModeEnabled) {
+            sampleDarkColorScheme.background
+        } else {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                sampleLightColorScheme.primary
+            } else {
+                Color.White.also {
+                    insetsController?.apply {
+                        setSystemBarsAppearance(
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                        )
+                    }
+                }
+            }
+        }.toArgb()
     }
 }
 

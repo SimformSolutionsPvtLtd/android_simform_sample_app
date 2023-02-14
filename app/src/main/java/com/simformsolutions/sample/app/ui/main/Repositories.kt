@@ -19,6 +19,7 @@ package com.simformsolutions.sample.app.ui.main
 import android.text.format.DateUtils
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -30,97 +31,140 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.simformsolutions.sample.app.R
 import com.simformsolutions.sample.app.RepositoriesQuery
+import com.simformsolutions.sample.app.ui.theme.shapes
+import com.simformsolutions.sample.app.ui.theme.topAppBarTitleColor
 import com.simformsolutions.sample.app.utils.GITHUB_UPDATED_AT_TIMESTAMP
-import com.simformsolutions.sample.app.utils.extension.setBottomBorder
 import kotlinx.coroutines.flow.Flow
 import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
+import java.util.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Repositories(
     repositoryData: Flow<PagingData<RepositoriesQuery.Node>>
 ) {
     val repositories = repositoryData.collectAsLazyPagingItems()
-    val uriHandler = LocalUriHandler.current
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        ScreenTitle()
-        LazyColumn {
-            items(repositories) {
-                it ?: return@items
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .setBottomBorder()
-                        .padding(10.dp)
-                        .clickable(
-                            interactionSource = MutableInteractionSource(),
-                            indication = null
-                        ) {
-                            uriHandler.openUri(it.url.toString())
-                        }
-                ) {
-                    NameAndLanguage(it)
-                    it.description?.let { description -> Description(description) }
-                    LastUpdateAndStars(it.updatedAt.toString(), it.stargazerCount.toString())
-                }
-            }
+    val shouldShowCircularProgressBar by remember {
+        derivedStateOf { repositories.itemCount == 0 }
+    }
+
+    Scaffold(
+        topBar = { TopAppBar() }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                isHidden = !shouldShowCircularProgressBar
+            )
+            RepositoriesList(
+                modifier = Modifier.fillMaxSize(),
+                repositories = repositories
+            )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ScreenTitle() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(1.dp)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+private fun TopAppBar() {
+    TopAppBar(
+        title = {
+            Text(
+                text = stringResource(R.string.simform_repo_title),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = topAppBarTitleColor
+            )
+        },
+        modifier = Modifier.shadow(7.dp)
+    )
+}
+
+@Composable
+private fun CircularProgressIndicator(
+    modifier: Modifier = Modifier,
+    isHidden: Boolean = true
+) {
+    CircularProgressIndicator(
+        modifier = modifier
+            .alpha(if (isHidden) 0f else 1f)
+    )
+}
+
+@Composable
+private fun RepositoriesList(
+    modifier: Modifier = Modifier,
+    repositories: LazyPagingItems<RepositoriesQuery.Node>
+) {
+    val uriHandler = LocalUriHandler.current
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
     ) {
-        Image(
-            painter = painterResource(R.drawable.ic_simform_logo),
-            contentDescription = "",
-            modifier = Modifier
-                .size(30.dp)
-                .align(Alignment.CenterStart)
-        )
-        Text(
-            text = "Simform Solutions",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Red,
-            modifier = Modifier.align(Alignment.Center)
-        )
+        items(repositories) {
+            it ?: return@items
+            Card(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                shape = shapes.large,
+                elevation = CardDefaults.cardElevation(5.dp)
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(15.dp)
+                        .clickable(
+                            interactionSource = MutableInteractionSource(),
+                            indication = null
+                        ) { uriHandler.openUri(it.url.toString()) }
+                ) {
+                    NameAndLanguage(it)
+                    it.description?.let { description -> Description(description) }
+                    LastUpdateAndStars(
+                        it.updatedAt.toString(),
+                        it.stargazerCount.toString()
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -145,33 +189,36 @@ private fun NameAndLanguage(data: RepositoriesQuery.Node) {
             ?.firstOrNull()
             ?.node
             ?.let { language ->
-                LanguageBlock(language)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .shadow(1.dp, shapes.large)
+                        .clip(shapes.large)
+                        .background(MaterialTheme.colorScheme.background)
+                        .border(0.5.dp, MaterialTheme.colorScheme.onSurface, shapes.large)
+                        .padding(5.dp)
+                        .padding(horizontal = 7.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(
+                                Color(
+                                    android.graphics.Color.parseColor(
+                                        language.color ?: "#FFFFFF"
+                                    )
+                                )
+                            )
+                    )
+                    Text(
+                        text = language.name,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = 14.sp
+                    )
+                }
             }
-    }
-}
-
-@Composable
-fun LanguageBlock(language: RepositoriesQuery.Node1) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .shadow(1.dp, RoundedCornerShape(20.dp))
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.background)
-            .padding(5.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(10.dp)
-                .clip(CircleShape)
-                .background(Color(android.graphics.Color.parseColor(language.color ?: "#FFFFFF")))
-        )
-        Text(
-            text = language.name,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 12.sp
-        )
     }
 }
 
@@ -205,41 +252,27 @@ private fun LastUpdateAndStars(
                     DateUtils.MINUTE_IN_MILLIS
                 )
                 Text(
-                    text = LocalContext.current.getString(R.string.last_updated_at, lastUpdatedFormatted),
+                    text = stringResource(R.string.last_updated_at, lastUpdatedFormatted),
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 12.sp
+                    fontSize = 12.sp,
+                    modifier = Modifier.alpha(0.7f)
                 )
             }
         }
-        RepoDetailBlock(
-            imageVector = Icons.Filled.Star,
-            text = starCount,
-            fontSize = 14.sp
-        )
-    }
-}
-
-@Composable
-private fun RepoDetailBlock(
-    modifier: Modifier = Modifier,
-    imageVector: ImageVector,
-    text: String,
-    fontSize: TextUnit = 12.sp
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(5.dp),
-        modifier = modifier
-    ) {
-        Image(
-            imageVector = imageVector,
-            contentDescription = "",
-            modifier = Modifier.size(15.dp)
-        )
-        Text(
-            text = text,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = fontSize
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            Image(
+                painter = painterResource(R.drawable.ic_star),
+                contentDescription = "",
+                modifier = Modifier.size(15.dp)
+            )
+            Text(
+                text = starCount,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 14.sp
+            )
+        }
     }
 }

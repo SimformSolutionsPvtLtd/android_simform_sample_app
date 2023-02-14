@@ -14,3 +14,7 @@
  * limitations under the License.
  */
 package com.simformsolutions.sample.app.ui.theme
+
+import androidx.compose.ui.graphics.Color
+
+val topAppBarTitleColor = Color(0xFFDD5E69)

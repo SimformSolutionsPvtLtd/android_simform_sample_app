@@ -48,6 +48,11 @@ Connect an Android device to your development machine or use android emulator pr
 
 * Select the device you wish to run the app on and hit run
 
+### Output screenshots
+
+| Light mode | Dark mode |
+|--|--|
+| ![alt text](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/android_simform_sample_app/master/screenshots/outputLightMode.png) | ![alt text](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/android_simform_sample_app/master/screenshots/outputDarkMode.png) |
 
 [//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. Thanks SO - http://stackoverflow.com/questions/4823468/store-comments-in-markdown-syntax)
 
