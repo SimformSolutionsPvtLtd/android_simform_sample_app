@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.simformsolutions.sample.app.utils.extension
 
-package com.simformsolutions.sample.app.utils.exception
-
-import com.apollographql.apollo3.api.Error
+import androidx.compose.ui.graphics.Color
 
 /**
- * Apollo errors exception
+ * String extension to convert given string(hex code) into [Color] if possible
  *
- * @param errors The list of errors
+ * @return [Color] of the given string representing hex code of the color
+ *         null if exception occurred while parsing color
  */
-class ApolloException(
-    val errors: List<Error>?
-) : Exception(errors?.first()?.message)
+fun String.toColor(): Color? = try {
+    Color(android.graphics.Color.parseColor(this))
+} catch (_: java.lang.IllegalArgumentException) {
+    null
+}

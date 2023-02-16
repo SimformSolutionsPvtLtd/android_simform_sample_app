@@ -25,6 +25,7 @@ import com.simformsolutions.sample.app.RepositoriesQuery
 import com.simformsolutions.sample.app.type.OrderDirection
 import com.simformsolutions.sample.app.type.RepositoryOrder
 import com.simformsolutions.sample.app.type.RepositoryOrderField
+import com.simformsolutions.sample.app.utils.exception.ApolloException
 import javax.inject.Inject
 
 /**
@@ -45,20 +46,23 @@ class SimformRepositoriesSource @Inject constructor(
     override suspend fun load(params: LoadParams<PagingKey>): LoadResult<PagingKey, RepositoriesQuery.Node> =
         try {
             val response = getRepositories(params.key?.before, params.key?.after)
-            response.data?.organization?.repositories?.let {
-                LoadResult.Page(
-                    data = it.nodes?.filterNotNull().orEmpty(),
-                    prevKey =
-                        if (it.pageInfo.hasPreviousPage)
-                            PagingKey(before = it.pageInfo.startCursor)
-                        else null,
-                    nextKey =
-                        if (it.pageInfo.hasNextPage)
-                            PagingKey(after = it.pageInfo.endCursor)
-                        else
-                            null
-                )
-            } ?: LoadResult.Invalid()
+            if (response.hasErrors()) {
+                LoadResult.Error(ApolloException(response.errors))
+            } else {
+                response.data?.organization?.repositories?.let {
+                    LoadResult.Page(
+                        data = it.nodes?.filterNotNull().orEmpty(),
+                        prevKey =
+                            if (it.pageInfo.hasPreviousPage)
+                                PagingKey(before = it.pageInfo.startCursor)
+                            else null,
+                        nextKey =
+                            if (it.pageInfo.hasNextPage)
+                                PagingKey(after = it.pageInfo.endCursor)
+                            else null
+                    )
+                } ?: LoadResult.Invalid()
+            }
         } catch (e: Exception) {
             LoadResult.Error(e)
         }
