@@ -190,6 +190,9 @@ dependencies {
     // Apollo GraphQL
     implementation(Libs.APOLLO_GRAPH_QL)
 
+    // System UI Controller
+    implementation(Libs.SYSTEM_UI_CONTROLLER)
+
     // Unit testing
     testImplementation(Libs.JUNIT)
     testImplementation(Libs.JUNIT_EXT)

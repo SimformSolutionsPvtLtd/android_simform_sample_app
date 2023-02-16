@@ -20,19 +20,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.bumptech.glide.Glide.init
-import com.simformsolutions.sample.app.RepositoriesQuery
 import com.simformsolutions.sample.app.data.remote.paging.SimformRepositoriesSource
 import com.simformsolutions.sample.app.data.repository.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 /**
