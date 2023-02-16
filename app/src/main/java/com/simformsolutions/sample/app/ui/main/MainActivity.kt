@@ -15,69 +15,56 @@
  */
 package com.simformsolutions.sample.app.ui.main
 
-import android.os.Build
 import android.os.Bundle
-import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.apollographql.apollo3.ApolloClient
-import com.simformsolutions.sample.app.ui.theme.SampleTheme
-import com.simformsolutions.sample.app.ui.theme.sampleDarkColorScheme
-import com.simformsolutions.sample.app.ui.theme.sampleLightColorScheme
+import com.simformsolutions.sample.app.R
+import com.simformsolutions.sample.app.ui.components.AppBar
+import com.simformsolutions.sample.app.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    @Inject lateinit var apolloClient: ApolloClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            SampleTheme {
-                SampleApp()
-                checkAndUpdateStatusBarState(isSystemInDarkTheme())
+            AppTheme {
+                MainScreen()
             }
         }
     }
-
-    private fun checkAndUpdateStatusBarState(isDarkModeEnabled: Boolean) = with(window) {
-        statusBarColor = if (isDarkModeEnabled) {
-            sampleDarkColorScheme.background
-        } else {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                sampleLightColorScheme.primary
-            } else {
-                Color.White.also {
-                    insetsController?.apply {
-                        setSystemBarsAppearance(
-                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
-                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-                        )
-                    }
-                }
-            }
-        }.toArgb()
-    }
 }
 
 @Composable
-fun SampleApp(
+fun MainScreen(
     viewModel: MainViewModel = viewModel()
 ) {
-    Repositories(repositoryData = viewModel.repositories)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SamplePreview() {
-   SampleApp()
+    Scaffold(
+        topBar = {
+            AppBar(
+                modifier = Modifier.shadow(7.dp),
+                title = stringResource(R.string.simform_repo_title)
+            )
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
+            Repositories(repositoryData = viewModel.repositories)
+        }
+    }
 }

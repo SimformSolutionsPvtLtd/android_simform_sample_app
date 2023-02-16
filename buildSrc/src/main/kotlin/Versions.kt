@@ -62,6 +62,7 @@ object Versions {
     const val RUNTIME_LIVE_DATA = "runtime-livedata"
     const val SPOTLESS = "5.1.1"
     const val SHIMMER = "0.5.0"
+    const val SYSTEM_UI_CONTROLLER = "0.28.0"
     const val TIMBER = "5.0.1"
     const val TEST_RUNNER = "1.4.0"
     const val TEST_RULES = "1.4.0"

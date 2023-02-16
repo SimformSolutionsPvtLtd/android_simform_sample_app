@@ -16,10 +16,11 @@
 
 package com.simformsolutions.sample.app.ui.main
 
+import android.content.Context
 import android.text.format.DateUtils
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -31,100 +32,67 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.simformsolutions.sample.app.R
 import com.simformsolutions.sample.app.RepositoriesQuery
+import com.simformsolutions.sample.app.ui.components.Chip
 import com.simformsolutions.sample.app.ui.theme.shapes
-import com.simformsolutions.sample.app.ui.theme.topAppBarTitleColor
+import com.simformsolutions.sample.app.ui.theme.typography
 import com.simformsolutions.sample.app.utils.GITHUB_UPDATED_AT_TIMESTAMP
+import com.simformsolutions.sample.app.utils.extension.setLoadStateListener
+import com.simformsolutions.sample.app.utils.extension.toColor
 import kotlinx.coroutines.flow.Flow
 import java.text.SimpleDateFormat
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Repositories(
     repositoryData: Flow<PagingData<RepositoriesQuery.Node>>
 ) {
+    val context = LocalContext.current
+    var shouldShowInitialLoader by remember { mutableStateOf(false) }
     val repositories = repositoryData.collectAsLazyPagingItems()
-    val shouldShowCircularProgressBar by remember {
-        derivedStateOf { repositories.itemCount == 0 }
-    }
+    repositories.loadState.refresh.setLoadStateListener(
+        onLoading = { shouldShowInitialLoader = true },
+        onNotLoading = { shouldShowInitialLoader = false },
+        onError = { showErrorToast(context, it.message.toString()) }
+    )
 
-    Scaffold(
-        topBar = { TopAppBar() }
-    ) { padding ->
-        Box(
+    Box {
+        CircularProgressIndicator(
             modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                isHidden = !shouldShowCircularProgressBar
-            )
-            RepositoriesList(
-                modifier = Modifier.fillMaxSize(),
-                repositories = repositories
-            )
-        }
+                .align(Alignment.Center)
+                .alpha(if (shouldShowInitialLoader) 1f else 0f)
+        )
+        RepositoriesList(
+            modifier = Modifier.fillMaxSize(),
+            repositories = repositories
+        )
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TopAppBar() {
-    TopAppBar(
-        title = {
-            Text(
-                text = stringResource(R.string.simform_repo_title),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = topAppBarTitleColor
-            )
-        },
-        modifier = Modifier.shadow(7.dp)
-    )
-}
-
-@Composable
-private fun CircularProgressIndicator(
-    modifier: Modifier = Modifier,
-    isHidden: Boolean = true
-) {
-    CircularProgressIndicator(
-        modifier = modifier
-            .alpha(if (isHidden) 0f else 1f)
-    )
 }
 
 @Composable
@@ -132,115 +100,140 @@ private fun RepositoriesList(
     modifier: Modifier = Modifier,
     repositories: LazyPagingItems<RepositoriesQuery.Node>
 ) {
-    val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+    var shouldShowRepositoryPageLoader by remember { mutableStateOf(false) }
+    repositories.loadState.append.setLoadStateListener(
+        onLoading = { shouldShowRepositoryPageLoader = true },
+        onNotLoading = { shouldShowRepositoryPageLoader = false },
+        onError = { showErrorToast(context, it.message.toString()) }
+    )
+
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
         items(repositories) {
             it ?: return@items
-            Card(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                shape = shapes.large,
-                elevation = CardDefaults.cardElevation(5.dp)
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(15.dp)
-                        .clickable(
-                            interactionSource = MutableInteractionSource(),
-                            indication = null
-                        ) { uriHandler.openUri(it.url.toString()) }
-                ) {
-                    NameAndLanguage(it)
-                    it.description?.let { description -> Description(description) }
-                    LastUpdateAndStars(
-                        it.updatedAt.toString(),
-                        it.stargazerCount.toString()
-                    )
-                }
+            RepositoryCard(it)
+        }
+        if (shouldShowRepositoryPageLoader && repositories.itemSnapshotList.isNotEmpty()) {
+            item {
+                CircularProgressIndicator(modifier = Modifier.padding(vertical = 8.dp))
             }
         }
     }
 }
 
 @Composable
-private fun NameAndLanguage(data: RepositoriesQuery.Node) {
+private fun RepositoryCard(
+    repository: RepositoriesQuery.Node
+) {
+    val uriHandler = LocalUriHandler.current
+    Card(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = shapes.large,
+        elevation = CardDefaults.cardElevation(5.dp)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(15.dp)
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ) { uriHandler.openUri(repository.url.toString()) }
+        ) {
+            NameAndLanguage(
+                modifier = Modifier.fillMaxWidth(),
+                repository = repository
+            )
+            repository.description?.let { description ->
+                Description(description = description)
+            }
+            LastUpdateAndStars(
+                modifier = Modifier.fillMaxWidth(),
+                lastUpdatedTimeStamp = repository.updatedAt.toString(),
+                starCount = repository.stargazerCount.toString()
+            )
+        }
+    }
+}
+
+@Composable
+private fun NameAndLanguage(
+    modifier: Modifier = Modifier,
+    repository: RepositoriesQuery.Node
+) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier
     ) {
         Text(
-            text = data.name,
-            fontSize = 18.sp,
+            text = repository.name,
             color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Bold,
+            style = typography.headlineLarge,
             modifier = Modifier.weight(1f),
             overflow = TextOverflow.Ellipsis,
             maxLines = 1
         )
-        data.languages?.edges
+        repository.languages?.edges
             ?.sortedByDescending { it?.size }
             ?.firstOrNull()
             ?.node
             ?.let { language ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .shadow(1.dp, shapes.large)
-                        .clip(shapes.large)
-                        .background(MaterialTheme.colorScheme.background)
-                        .border(0.5.dp, MaterialTheme.colorScheme.onSurface, shapes.large)
-                        .padding(5.dp)
-                        .padding(horizontal = 7.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .clip(RoundedCornerShape(3.dp))
-                            .background(
-                                Color(
-                                    android.graphics.Color.parseColor(
-                                        language.color ?: "#FFFFFF"
-                                    )
-                                )
-                            )
-                    )
-                    Text(
-                        text = language.name,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 14.sp
-                    )
-                }
+                val color = language.color?.toColor() ?: Color.White
+                Chip(
+                    elevation = 1.dp,
+                    shape = shapes.large,
+                    borderWidth = 0.5.dp,
+                    borderColor = MaterialTheme.colorScheme.onSurface,
+                    leadingIcon = {
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .clip(shapes.extraSmall)
+                                .background(color)
+                        )
+                    },
+                    content = {
+                        Text(
+                            text = language.name,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = typography.bodyMedium
+                        )
+                    }
+                )
             }
     }
 }
 
 @Composable
-fun Description(description: String) {
+fun Description(
+    modifier: Modifier = Modifier,
+    description: String
+) {
     Text(
         text = description,
-        fontSize = 12.sp,
+        style = typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurface,
-        fontWeight = FontWeight.Normal
+        modifier = modifier
     )
 }
 
 @Composable
 private fun LastUpdateAndStars(
+    modifier: Modifier = Modifier,
     lastUpdatedTimeStamp: String,
     starCount: String
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier
     ) {
         SimpleDateFormat(GITHUB_UPDATED_AT_TIMESTAMP, Locale.getDefault()).let {
             it.timeZone = TimeZone.getTimeZone("GMT")
@@ -254,7 +247,7 @@ private fun LastUpdateAndStars(
                 Text(
                     text = stringResource(R.string.last_updated_at, lastUpdatedFormatted),
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 12.sp,
+                    style = typography.bodySmall,
                     modifier = Modifier.alpha(0.7f)
                 )
             }
@@ -271,8 +264,22 @@ private fun LastUpdateAndStars(
             Text(
                 text = starCount,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 14.sp
+                style = typography.bodyMedium
             )
         }
     }
+}
+
+/**
+ * Shows an toast to denote an error occurring while loading repositories
+ *
+ * @param context   The [Context]
+ * @param message   The error message to toast
+ */
+private fun showErrorToast(context: Context, message: String) {
+    Toast.makeText(
+        context,
+        context.getString(R.string.cannot_load_repositories, message),
+        Toast.LENGTH_LONG
+    ).show()
 }

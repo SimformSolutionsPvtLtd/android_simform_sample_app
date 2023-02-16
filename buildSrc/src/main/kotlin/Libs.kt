@@ -102,4 +102,7 @@ object Libs {
 
     // Apollo GraphQL
     const val APOLLO_GRAPH_QL = "com.apollographql.apollo3:apollo-runtime:${Versions.APOLLO_GRAPH_QL}"
+
+    // System UI Controller
+    const val SYSTEM_UI_CONTROLLER = "com.google.accompanist:accompanist-systemuicontroller:${Versions.SYSTEM_UI_CONTROLLER}"
 }
