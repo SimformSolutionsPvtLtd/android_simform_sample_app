@@ -20,17 +20,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
-val sampleLightColorScheme = lightColorScheme()
-
-val sampleDarkColorScheme = darkColorScheme()
+val lightColorScheme = lightColorScheme()
+val darkColorScheme = darkColorScheme()
 
 @Composable
-fun SampleTheme(
+fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) sampleDarkColorScheme else sampleLightColorScheme
+    val colorScheme = if (darkTheme) darkColorScheme else lightColorScheme
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setSystemBarsColor(colorScheme.background)
+
     MaterialTheme(
         colorScheme = colorScheme,
         shapes = shapes,
