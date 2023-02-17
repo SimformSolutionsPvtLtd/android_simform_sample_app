@@ -18,5 +18,6 @@
     <string name="app_name">Simform Sample App</string>
     <string name="last_updated_at">Last updated at %1$s</string>
     <string name="simform_repo_title">Simform Repositories</string>
-    <string name="cannot_load_repositories">Cannot load repositories: %1$s</string>
+    <string name="on_screen_error_message">There was a problem fetching the repositories. \nPlease try again</string>
+    <string name="oops_label">Oops...</string>
 </resources>
