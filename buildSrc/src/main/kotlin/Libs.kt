@@ -20,6 +20,7 @@ object Libs {
     const val RECYCLERVIEW = "androidx.recyclerview:recyclerview:${Versions.RECYCLER_VIEW}"
     const val MATERIAL = "com.google.android.material:material:${Versions.MATERIAL}"
     // Compose
+    const val COMPOSE_MATERIAL = "androidx.compose.material:material:${Versions.COMPOSE_MATERIAL}"
     const val COMPOSE_MATERIAL_3 = "androidx.compose.material3:${Versions.COMPOSE_MATERIAL_3}"
     const val COMPOSE_UI_TOOLING = "androidx.compose.ui:${Versions.COMPOSE_UI_TOOLING}"
     const val COMPOSE_UI_TOOLING_PREVIEW = "androidx.compose.ui:${Versions.COMPOSE_UI_TOOLING_PREVIEW}"

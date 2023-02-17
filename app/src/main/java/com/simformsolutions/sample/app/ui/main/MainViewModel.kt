@@ -24,6 +24,8 @@ import androidx.paging.cachedIn
 import com.simformsolutions.sample.app.data.remote.paging.SimformRepositoriesSource
 import com.simformsolutions.sample.app.data.repository.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 /**
@@ -34,11 +36,18 @@ class MainViewModel @Inject constructor(
     private val mainRepository: MainRepository
 ) : ViewModel() {
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = _isRefreshing.asStateFlow()
+
     val repositories = Pager(
         PagingConfig(pageSize = SimformRepositoriesSource.PAGE_LENGTH)
     ) {
         mainRepository.getSimformRepositoriesSource()
     }.flow.cachedIn(viewModelScope)
+
+    fun setIsRefreshing(isRefreshing: Boolean) {
+        _isRefreshing.value = isRefreshing
+    }
 
     companion object {
         private val TAG = MainViewModel::class.java.canonicalName
