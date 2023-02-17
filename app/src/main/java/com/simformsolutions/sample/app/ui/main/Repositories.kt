@@ -32,6 +32,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -71,18 +74,35 @@ import java.util.*
 
 @Composable
 fun Repositories(
-    repositoryData: Flow<PagingData<RepositoriesQuery.Node>>
+    repositoryData: Flow<PagingData<RepositoriesQuery.Node>>,
+    isRefreshing: Boolean = false,
+    onRefresh: () -> Unit = { },
+    onListLoaded: () -> Unit = { }
 ) {
     val context = LocalContext.current
     var shouldShowInitialLoader by remember { mutableStateOf(false) }
     val repositories = repositoryData.collectAsLazyPagingItems()
     repositories.loadState.refresh.setLoadStateListener(
-        onLoading = { shouldShowInitialLoader = true },
-        onNotLoading = { shouldShowInitialLoader = false },
+        onLoading = { shouldShowInitialLoader = !isRefreshing },
+        onNotLoading = {
+            onListLoaded()
+            shouldShowInitialLoader = false
+        },
         onError = { showErrorToast(context, it.message.toString()) }
     )
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = {
+            onRefresh()
+            repositories.refresh()
+        }
+    )
 
-    Box {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pullRefresh(pullRefreshState)
+    ) {
         CircularProgressIndicator(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -91,6 +111,11 @@ fun Repositories(
         RepositoriesList(
             modifier = Modifier.fillMaxSize(),
             repositories = repositories
+        )
+        PullRefreshIndicator(
+            refreshing = isRefreshing,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
         )
     }
 }

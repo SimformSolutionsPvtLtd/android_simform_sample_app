@@ -16,6 +16,7 @@
 
 package com.simformsolutions.sample.app.data.repository
 
+import com.apollographql.apollo3.ApolloClient
 import com.simformsolutions.sample.app.data.remote.paging.SimformRepositoriesSource
 import javax.inject.Inject
 
@@ -34,12 +35,12 @@ interface MainRepository {
 /**
  * Implementation of [MainRepository]
  *
- * @param simformRepositoriesSource The instance of [SimformRepositoriesSource]
+ * @param apolloClient The [ApolloClient] instance
  */
 class MainRepositoryImpl @Inject constructor(
-    private val simformRepositoriesSource: SimformRepositoriesSource
+    private val apolloClient: ApolloClient
 ) : MainRepository {
 
     override fun getSimformRepositoriesSource(): SimformRepositoriesSource =
-        simformRepositoriesSource
+        SimformRepositoriesSource.getInstance(apolloClient)
 }

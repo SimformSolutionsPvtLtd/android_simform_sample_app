@@ -139,6 +139,8 @@ dependencies {
     implementation(Libs.VIEWMODEL_COMPOSE)
     // Integration with LiveData
     implementation(Libs.RUNTIME_LIVEDATA_COMPOSE)
+    // Material Design
+    implementation(Libs.COMPOSE_MATERIAL)
     // Material Design 3
     implementation(Libs.COMPOSE_MATERIAL_3)
     // Pagination

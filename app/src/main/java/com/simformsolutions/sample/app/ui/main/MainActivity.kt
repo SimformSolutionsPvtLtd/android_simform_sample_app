@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
@@ -51,6 +53,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(
     viewModel: MainViewModel = viewModel()
 ) {
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
     Scaffold(
         topBar = {
             AppBar(
@@ -64,7 +67,12 @@ fun MainScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            Repositories(repositoryData = viewModel.repositories)
+            Repositories(
+                repositoryData = viewModel.repositories,
+                isRefreshing = isRefreshing,
+                onRefresh = { viewModel.setIsRefreshing(true) },
+                onListLoaded = { viewModel.setIsRefreshing(false) }
+            )
         }
     }
 }
