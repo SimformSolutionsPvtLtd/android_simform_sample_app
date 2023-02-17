@@ -26,22 +26,16 @@ import com.simformsolutions.sample.app.type.OrderDirection
 import com.simformsolutions.sample.app.type.RepositoryOrder
 import com.simformsolutions.sample.app.type.RepositoryOrderField
 import com.simformsolutions.sample.app.utils.exception.ApolloException
-import javax.inject.Inject
 
 /**
  * The paging source for loading Simform organisation repositories.
  */
-class SimformRepositoriesSource @Inject constructor(
+class SimformRepositoriesSource private constructor(
     private val apolloClient: ApolloClient
 ) : PagingSource<SimformRepositoriesSource.PagingKey, RepositoriesQuery.Node>() {
 
     override fun getRefreshKey(state: PagingState<PagingKey, RepositoriesQuery.Node>): PagingKey? =
-        state.anchorPosition?.let {
-            state.pages.indexOf(
-                state.closestPageToPosition(it)
-            )
-            state.pages.getOrNull(it + 1)?.prevKey ?: state.pages.getOrNull(it - 1)?.nextKey
-        }
+        null
 
     override suspend fun load(params: LoadParams<PagingKey>): LoadResult<PagingKey, RepositoriesQuery.Node> =
         try {
@@ -106,5 +100,15 @@ class SimformRepositoriesSource @Inject constructor(
 
         private const val SIMFORM_ORG = "SimformSolutionsPvtLtd"
         private const val PAGE_LENGTH_LANGUAGES = 5
+
+        /**
+         * Provides the instance of [SimformRepositoriesSource]
+         *
+         * @param apolloClient The [ApolloClient] instance
+         *
+         * @return An instance of [SimformRepositoriesSource]
+         */
+        fun getInstance(apolloClient: ApolloClient): SimformRepositoriesSource =
+            SimformRepositoriesSource(apolloClient)
     }
 }
