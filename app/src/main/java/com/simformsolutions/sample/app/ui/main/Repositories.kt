@@ -54,8 +54,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -64,6 +66,7 @@ import com.simformsolutions.sample.app.R
 import com.simformsolutions.sample.app.RepositoriesQuery
 import com.simformsolutions.sample.app.ui.components.Chip
 import com.simformsolutions.sample.app.ui.theme.shapes
+import com.simformsolutions.sample.app.ui.theme.simformRepositoriesAppBarTitleColor
 import com.simformsolutions.sample.app.ui.theme.typography
 import com.simformsolutions.sample.app.utils.GITHUB_UPDATED_AT_TIMESTAMP
 import com.simformsolutions.sample.app.utils.extension.setLoadStateListener
@@ -79,16 +82,24 @@ fun Repositories(
     onRefresh: () -> Unit = { },
     onListLoaded: () -> Unit = { }
 ) {
-    val context = LocalContext.current
     var shouldShowInitialLoader by remember { mutableStateOf(false) }
+    var showErrorMessage by remember { mutableStateOf(false) }
     val repositories = repositoryData.collectAsLazyPagingItems()
     repositories.loadState.refresh.setLoadStateListener(
-        onLoading = { shouldShowInitialLoader = !isRefreshing },
+        onLoading = {
+            showErrorMessage = false
+            shouldShowInitialLoader = !isRefreshing
+        },
         onNotLoading = {
             onListLoaded()
+            showErrorMessage = false
             shouldShowInitialLoader = false
         },
-        onError = { showErrorToast(context, it.message.toString()) }
+        onError = {
+            onListLoaded()
+            showErrorMessage = true
+            shouldShowInitialLoader = false
+        }
     )
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
@@ -103,6 +114,14 @@ fun Repositories(
             .fillMaxSize()
             .pullRefresh(pullRefreshState)
     ) {
+        if (showErrorMessage) {
+            ErrorMessage(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.Center)
+                    .background(simformRepositoriesAppBarTitleColor),
+            )
+        }
         CircularProgressIndicator(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -117,6 +136,34 @@ fun Repositories(
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter)
         )
+    }
+}
+
+@Composable
+private fun ErrorMessage(
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(40.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .align(Alignment.Center)
+        ) {
+            Text(
+                text = stringResource(R.string.oops_label),
+                fontWeight = FontWeight.Bold,
+                fontSize = 44.sp,
+                color = Color.White
+            )
+            Text(
+                text = stringResource(R.string.on_screen_error_message),
+                fontWeight = FontWeight.Normal,
+                fontSize = 16.sp,
+                color = Color.White
+            )
+        }
     }
 }
 
@@ -139,7 +186,12 @@ private fun RepositoriesList(
     ) {
         items(repositories) {
             it ?: return@items
-            RepositoryCard(it)
+            RepositoryCard(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                repository = it
+            )
         }
         if (shouldShowRepositoryPageLoader && repositories.itemSnapshotList.isNotEmpty()) {
             item {
@@ -151,13 +203,12 @@ private fun RepositoriesList(
 
 @Composable
 private fun RepositoryCard(
+    modifier: Modifier = Modifier,
     repository: RepositoriesQuery.Node
 ) {
     val uriHandler = LocalUriHandler.current
     Card(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = modifier,
         shape = shapes.large,
         elevation = CardDefaults.cardElevation(5.dp)
     ) {
@@ -302,9 +353,5 @@ private fun LastUpdateAndStars(
  * @param message   The error message to toast
  */
 private fun showErrorToast(context: Context, message: String) {
-    Toast.makeText(
-        context,
-        context.getString(R.string.cannot_load_repositories, message),
-        Toast.LENGTH_LONG
-    ).show()
+    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 }
